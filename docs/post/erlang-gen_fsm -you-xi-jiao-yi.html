@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark_colorblind" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="//cdn.staticfile.org/Primer/21.0.7/primer.css" rel="stylesheet" />
+    <link rel="icon" href="https://cdn.acwing.com/media/article/image/2023/05/28/36510_044ec922fc-3.png">
+    <script>
+        if(localStorage.getItem("meek_theme")==null){}
+        else if(localStorage.getItem("meek_theme")=="dark"){document.getElementsByTagName("html")[0].attributes.getNamedItem("data-color-mode").value="dark";}
+        else if(localStorage.getItem("meek_theme")=="light"){document.getElementsByTagName("html")[0].attributes.getNamedItem("data-color-mode").value="light";}
+    </script>
+    
+<meta name="description" content="erlang-gen_fsm 游戏交易">
+<title>erlang-gen_fsm 游戏交易</title>
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">erlang-gen_fsm 游戏交易</h1>
+<div class="title-right">
+    
+    <a href="https://fluent12138.github.io/"><button id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd" d="M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z"></path>
+        </svg>
+    </button></a>
+
+    
+    <a href="https://github.com/fluent12138/fluent12138.github.io/issues/4" target="_blank"><button class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd" d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+        </svg>
+    </button></a>
+    
+
+    <button class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </button>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><p><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/d0ab3dbd8e82e05655f195df2c5c274176ac0e6e68e6415e08be0eb46271a1fd/68747470733a2f2f63646e2e616377696e672e636f6d2f6d656469612f61727469636c652f696d6167652f323032332f30342f30342f33363531305f383630303737303564322d66736d2d2545362542382542382545362538382538462545342542412541342545362539382539332e657863616c69647261772e706e67"><img src="https://camo.githubusercontent.com/d0ab3dbd8e82e05655f195df2c5c274176ac0e6e68e6415e08be0eb46271a1fd/68747470733a2f2f63646e2e616377696e672e636f6d2f6d656469612f61727469636c652f696d6167652f323032332f30342f30342f33363531305f383630303737303564322d66736d2d2545362542382542382545362538382538462545342542412541342545362539382539332e657863616c69647261772e706e67" alt="fsm-游戏交易.excalidraw.png" data-canonical-src="https://cdn.acwing.com/media/article/image/2023/04/04/36510_86007705d2-fsm-%E6%B8%B8%E6%88%8F%E4%BA%A4%E6%98%93.excalidraw.png" style="max-width: 100%;"></a></p>
+<p><strong>code</strong></p>
+<pre class="notranslate"><code class="notranslate">%%%-------------------------------------------------------------------
+%%% @author 勒勒
+%%% @copyright (C) 2023, &lt;COMPANY&gt;
+%%% @doc
+%%%
+%%% @end
+%%% Created : 31. 3月 2023 14:38
+%%%-------------------------------------------------------------------
+-module(trade_fsm).
+-author("勒勒").
+-behavior(gen_fsm).
+-record(state, {name = "", other, ownitems = [], otheritems = [], monitor, from}). % from就是gen_fsm中发送消息处
+%% 公共API
+-export([start/1, start_link/1, trade/2, accept_trade/1, make_offer/2, retract_offer/2, ready/1, cancel/1]).
+%% gen_sfm回调函数
+-export([init/1, handle_event/3, handle_sync_event/4, handle_info/3, terminate/3, code_change/4,
+        % 定制的状态名
+        idle/2, idle/3, idle_wait/2, idle_wait/3, negotiate/2, negotiate/3, wait/2, ready/2, ready/3
+        ]).
+
+%%% 公共API
+start(Name) -&gt; gen_fsm:start(?MODULE, [Name], []).
+
+start_link(Name) -&gt; gen_fsm:start_link(?MODULE, [Name], []).
+
+%% 请求开始交易谈话. 当/如果对方接收时返回
+trade(OwnPid, OtherPid) -&gt;
+  gen_fsm:sync_send_event(OwnPid, {negotiate, OtherPid}, 30000).
+
+%% 接收某个玩家的交易请求
+accept_trade(OwnPid) -&gt;
+  gen_fsm:sync_send_event(OwnPid, accept_negotiate).
+
+%% 从物品列表中选择一个进行交易
+make_offer(OwnPid, Item) -&gt;
+  gen_fsm:send_event(OwnPid, {make_offer, Item}).
+
+%% 撤销某个交易物品
+retract_offer(OwnPid, Item) -&gt;
+  gen_fsm:send_event(OwnPid, {retract_offer, Item}).
+
+%% 宣布自己就绪. 当对方也宣布自己就绪了, 交易就完成了.
+ready(OwnPid) -&gt;
+  gen_fsm:sync_send_event(OwnPid, ready, infinity).
+
+%% 取消交易
+cancel(OwnPid) -&gt;
+  gen_fsm:sync_send_all_state_event(OwnPid, cancel).
+
+%%% FSM 到 FSM
+
+%% 向另一个FSM发送交易会话请求
+ask_negotiate(OwnPid, OtherPid) -&gt;
+  gen_fsm:send_event(OtherPid, {ask_negotiate, OwnPid}).
+
+%% 转发玩家交易接收请求
+accept_negotiate(OtherPid, OwnPid) -&gt;
+  gen_fsm:send_event(OtherPid, {accept_negotiate, OwnPid}).
+
+%% 转发玩家的交易物品提供信息
+do_offer(OtherPid, Item) -&gt;
+  gen_fsm:send_event(OtherPid, {do_offer, Item}).
+
+%% 转发玩家交易物品撤销请求
+undo_offer(OtherPid, Item) -&gt;
+  gen_fsm:send_event(OtherPid, {undo_offer, Item}).
+
+%% 询问对方是否就绪
+are_you_ready(OtherPid) -&gt;
+  gen_fsm:send_event(OtherPid, are_you_ready).
+
+%% 回复未就绪 -&gt; 不在wait状态哦
+not_yet(OtherPid) -&gt;
+  gen_fsm:send_event(OtherPid, not_yet).
+
+%% 通知对方玩家当前处于等待进入ready状态
+%% 状态会迁移到ready ?
+am_ready(OtherPid) -&gt;
+  gen_fsm:send_event(OtherPid, 'ready!').
+
+%% 确认fsm处于ready状态
+ack_trans(OtherPid) -&gt;
+  gen_fsm:send_event(OtherPid, ack).
+
+%% 询问是否可以提交
+ask_commit(OtherPid) -&gt;
+  gen_fsm:sync_send_event(OtherPid, ask_commit).
+
+%% 开始同步提交
+do_commit(OtherPid) -&gt;
+  gen_fsm:sync_send_event(OtherPid, do_commit).
+
+%% 礼貌取消
+notify_cancel(OtherPid) -&gt;
+  gen_fsm:send_all_state_event(OtherPid, cancel).
+
+init(Name) -&gt;
+  {ok, idle, #state{name = Name}}.
+
+%% 给玩家发送一条通知, 可以是一条发给玩家进程的消息
+%% 打印在控制台就ok了
+notice(#state{name = N}, Str, Args) -&gt;
+  io:format("~s : "++ Str ++ "~n", [N | Args]).
+
+%% 记录非期望的消息
+unexpected(Msg, State) -&gt;
+  io:format("~p receive unknown event ~p while in state ~p", [self(), Msg, State]).
+
+%%% idle 请求/接收 交易
+%% 异步版本, 关心其他玩家的交易请求
+idle({ask_negotiate, OtherPid}, S = #state{}) -&gt;
+  Ref = monitor(process, OtherPid),
+  notice(S, "~p asked for a trade negotiation", [OtherPid]),
+  {next_state, idle_wait, S#state{other = OtherPid, monitor = Ref}};
+
+idle(Event, Data) -&gt;
+  unexpected(Event, idle),
+  {next_state, idle, Data}.
+
+%% 同步版本, 本方玩家请求另一个玩家进行交易
+idle({negotiate, OtherPid}, From, S=#state{}) -&gt;
+  ask_negotiate(OtherPid, self()),
+  notice(S, "asking user ~p for a trade", [OtherPid]),
+  Ref = monitor(process, OtherPid),
+  {next_state, idle_wait, S = #state{other = OtherPid, monitor = Ref, from = From}};
+
+idle(Event, _From, Data) -&gt;
+  unexpected(Event, idle),
+  {next_state, idle, Data}.
+
+%%% idle_wait
+%% 接收方, 1.同意协商 2.在我们发送交易请求时, 他也发起了交易
+idle_wait({ask_negotiate, OtherPid}, S = #state{other = OtherPid}) -&gt;
+  gen_fsm:reply(S#state.from, ok), % 通知玩家一切正常
+  notice(S, "starting negotiation", []),
+  {next_state, negotiate, S};
+
+%% 对方接受了我们的请求, 迁移negotiate状态
+idle_wait({accept_negotiate, OtherPid}, S = #state{other = OtherPid}) -&gt;
+  gen_fsm:reply(S#state.from, ok), % 通知玩家一切正常
+  notice(S, "starting negotiation", []),
+  {next_state, negotiate, S};
+
+idle_wait(Event, Data) -&gt;
+  unexpected(Event, idle_wait),
+  {next_state, idle_wait, Data}.
+
+%% 发送方, 接收对方玩家请求
+idle_wait(accept_negotiate, _From, S = #state{other = OtherPid}) -&gt;
+  accept_negotiate(OtherPid, self()),
+  notice(S, "accepting negotiation", []),
+  {reply, ok, negotiate, S};
+
+idle_wait(Event, _From, Data) -&gt;
+  unexpected(Event, idle_wait),
+  {next_state, idle_wait, Data}.
+
+%% 向物品列表中添加一个物品
+add(Item, Items) -&gt;
+  [Item|Items].
+
+%% 从物品列表中删除一个物品
+remove(Item, Items) -&gt;
+  Items -- [Item].
+
+%%% negotiate
+%% 本方提供物品
+negotiate({make_offer, Item}, S = #state{ownitems = OwnItems}) -&gt;
+  do_offer(S#state.other, Item),
+  notice(S, "offering ~p", [Item]),
+  {next_state, negotiate, S#state{ownitems = add(Item, OwnItems)}};
+
+%% 本方撤销物品
+negotiate({retract_offer, Item}, S = #state{ownitems = OwnItems}) -&gt;
+  undo_offer(S#state.other, Item),
+  notice(S, "cancelling offer on ~p", [Item]),
+  {next_state, negotiate, S#state{ownitems = remove(Item, OwnItems)}};
+
+%% 对方提供物品
+negotiate({do_offer, Item}, S = #state{otheritems = OtherItems}) -&gt;
+  notice(S, "other player offering ~p", [Item]),
+  {next_state, negotiate, S#state{otheritems = add(Item, OtherItems)}};
+
+%% 对方撤销物品
+negotiate({undo_offer, Item}, S = #state{otheritems = OtherItems}) -&gt;
+  notice(S, "other player cancelling offer on ~p", [Item]),
+  {next_state, negotiate, S#state{otheritems = OtherItems}};
+
+%% 当在negotiate状态时, 接收到对方的ready信号, 直接拒绝.
+negotiate(are_you_ready, S = #state{other = OtherPid}) -&gt;
+  io:format("Other user ready to trade ~n"),
+  notice(S, "Other user ready to transfer goods : ~n You get ~p, The Other side gets ~p", [S#state.otheritems, S#state.ownitems]),
+  not_yet(OtherPid),
+  {next_state, negotiate, S};
+
+negotiate(Event, Data) -&gt;
+  unexpected(Event, negotiate),
+  {next_state, negotiate, Data}.
+
+%% 玩家做完决策 -&gt; 发送ready
+negotiate(ready, From, S = #state{other = OtherPid}) -&gt;
+  are_you_ready(OtherPid),
+  notice(S, "asking if ready, waiting", []),
+  {next_state, wait, S = #state{from = From}};
+
+negotiate(Event, _From, S) -&gt;
+  unexpected(Event, negotiate),
+  {next_state, negotiate, S}.
+
+%%% wait
+
+%% 当对方撤销/提供物品了, 回退到negotiate状态
+wait({do_offer, Item}, S = #state{otheritems = OtherItems}) -&gt;
+  gen_fsm:reply(S#state.from, offer_changed), % 通知negotiate状态
+  notice(S, "other side offering ~p", [Item]),
+  {next_state, negotiate, S#state{otheritems = add(Item, OtherItems)}};
+
+wait({undo_offer, Item}, S = #state{otheritems = OtherItems}) -&gt;
+  gen_fsm:reply(S#state.from, offer_changed), % 通知negotiate状态
+  notice(S, "other side cancelling offer of ~p", [Item]),
+  {next_state, negotiate, S#state{otheritems = remove(Item, OtherItems)}};
+
+%% 对方询问本方是否ready
+wait(are_you_ready, S = #state{}) -&gt;
+  am_ready(S#state.other),
+  notice(S, "asked if ready, and I am. Waiting for same reply", []),
+  {next_state, wait, S};
+
+%% 对方不同意
+wait(not_yet, S = #state{}) -&gt;
+  notice(S, "Other not ready yet", []),
+  {next_state, wait, S};
+
+%% 收到ready!
+wait('ready!', S = #state{}) -&gt;
+  am_ready(S#state.other),
+  ack_trans(S#state.other),
+  gen_fsm:reply(#state.from, ok),
+  notice(S, "other side is ready. Moving to ready state", []),
+  {next_state, ready, S};
+
+%% 不期待的消息
+wait(Event, Data) -&gt;
+  unexpected(Event, wait),
+  {next_state, wait, Data}.
+
+%%% ready, 选择一个FSM去完成ready, erlang中进程是排好序的, 可以比较大小
+priority(OwnPid, OtherPid) when OwnPid &gt; OtherPid -&gt; true;
+priority(OwnPid, OtherPid) when OtherPid &gt; OwnPid -&gt; false.
+
+ready(ack, S = #state{}) -&gt;
+  case priority(self(), S#state.other) of
+      true -&gt;
+        try
+          notice(S, "asking for commit", []),
+          ready_commit = ask_commit(S#state.other),
+          notice(S, "ordering commit", []),
+          ok = do_commit(S#state.other),
+          commit(S),
+          {stop, normal, S}
+        catch Class:Reason -&gt;
+          %% 退出!, ready_commit或do_commit失败了
+          notice(S, "commit failed", []),
+          {stop, {Class, Reason}, S}
+        end;
+      false -&gt;
+        {next_state, ready, S}
+  end;
+
+ready(Event, Data) -&gt;
+  unexpected(Event, ready),
+  {next_state, ready, Data}.
+
+ready(ask_commit, _From, S) -&gt;
+  notice(S, "replying to ask_commit", []),
+  {reply, ready_commit, ready, S};
+
+ready(do_commit, _From, S) -&gt;
+  notice(S, "commiting...", []),
+  commit(S),
+  {stop, normal, ok, S};
+
+ready(Event, _From, S) -&gt;
+  unexpected(Event, ready),
+  {next_state, ready, S}.
+
+commit(S = #state{}) -&gt;
+  io:format("Transaction completed for ~s.", [S#state.name]),
+  io:format("Items send are: ~n ~p ~n received are: ~n ~p ~n", [S#state.ownitems, S#state.otheritems]),
+  io:format("The operation should have some atomic save in a database").
+
+%% 对方玩家取消交易
+%% 停止正再做的工作 终止进程
+handle_event(cancel, _StateName, S = #state{}) -&gt;
+  notice(S, "received cancel event", []),
+  {stop, other_cancelled, S};
+
+handle_event(Event, StateName, Data) -&gt;
+  unexpected(Event, StateName),
+  {next_state, StateName, Data}.
+
+%% 本方玩家终止交易, 必须通知对方玩家我们退出了
+handle_sync_event(cancel, _From, _StateName, S = #state{}) -&gt;
+  notify_cancel(S#state.other),
+  notice(S, "cancelling trade, sending cancel event", []),
+  {stop, cancelled, ok, S};
+
+handle_sync_event(Event, _From, StateName, Data) -&gt;
+  unexpected(Event, StateName),
+  {next_state, StateName, Data}.
+
+%% 处理对方FSM崩溃事件
+handle_info({'DOWN', Ref, process, Pid, Reason}, _, S = #state{other = Pid, monitor=Ref}) -&gt;
+  notice(S, "Other side dead", []),
+  {stop, {other_down, Reason}, S};
+
+handle_info(Info, StateName, Data) -&gt;
+  unexpected(Info, StateName),
+  {next_state, StateName, Data}.
+
+code_change(_OldVsn, StateName, Data, _Extra) -&gt;
+  {ok, StateName, Data}.
+
+terminate(_Reason, _StateName, _StateData) -&gt; ok.
+</code></pre>
+</div>
+<div style="font-size:small;margin-top:8px;float:right;">❤️ 转载文章请注明出处，谢谢！❤️</div>
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+</div>
+    <div id="footer">Copyright © <span id="year"></span><a href="https://fluent12138.github.io/"> 一只博客 </a>
+<p>
+<span id="runday"></span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a>
+</p>
+
+<script>
+if(""!=""){
+    var now=new Date();
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("year").innerHTML=now.getFullYear();
+    if(""!=""){document.getElementById("runday").innerHTML=" • "+"网站运行"+diffDay+"天"+" • ";}
+    else{document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";}
+}
+</script>
+</div>
+</body>
+<script>
+var IconList={'post': 'M0 3.75C0 2.784.784 2 1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25Zm1.75-.25a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25v-8.5a.25.25 0 0 0-.25-.25ZM3.5 6.25a.75.75 0 0 1 .75-.75h7a.75.75 0 0 1 0 1.5h-7a.75.75 0 0 1-.75-.75Zm.75 2.25h4a.75.75 0 0 1 0 1.5h-4a.75.75 0 0 1 0-1.5Z', 'link': 'm7.775 3.275 1.25-1.25a3.5 3.5 0 1 1 4.95 4.95l-2.5 2.5a3.5 3.5 0 0 1-4.95 0 .751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018 1.998 1.998 0 0 0 2.83 0l2.5-2.5a2.002 2.002 0 0 0-2.83-2.83l-1.25 1.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042Zm-4.69 9.64a1.998 1.998 0 0 0 2.83 0l1.25-1.25a.751.751 0 0 1 1.042.018.751.751 0 0 1 .018 1.042l-1.25 1.25a3.5 3.5 0 1 1-4.95-4.95l2.5-2.5a3.5 3.5 0 0 1 4.95 0 .751.751 0 0 1-.018 1.042.751.751 0 0 1-1.042.018 1.998 1.998 0 0 0-2.83 0l-2.5 2.5a1.998 1.998 0 0 0 0 2.83Z', 'about': 'M10.561 8.073a6.005 6.005 0 0 1 3.432 5.142.75.75 0 1 1-1.498.07 4.5 4.5 0 0 0-8.99 0 .75.75 0 0 1-1.498-.07 6.004 6.004 0 0 1 3.431-5.142 3.999 3.999 0 1 1 5.123 0ZM10.5 5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0Z', 'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'search': 'M15.7 13.3l-3.81-3.83A5.93 5.93 0 0 0 13 6c0-3.31-2.69-6-6-6S1 2.69 1 6s2.69 6 6 6c1.3 0 2.48-.41 3.47-1.11l3.83 3.81c.19.2.45.3.7.3.25 0 .52-.09.7-.3a.996.996 0 0 0 0-1.41v.01zM7 10.7c-2.59 0-4.7-2.11-4.7-4.7 0-2.59 2.11-4.7 4.7-4.7 2.59 0 4.7 2.11 4.7 4.7 0 2.59-2.11 4.7-4.7 4.7z', 'rss': 'M2.002 2.725a.75.75 0 0 1 .797-.699C8.79 2.42 13.58 7.21 13.974 13.201a.75.75 0 0 1-1.497.098 10.502 10.502 0 0 0-9.776-9.776.747.747 0 0 1-.7-.798ZM2.84 7.05h-.002a7.002 7.002 0 0 1 6.113 6.111.75.75 0 0 1-1.49.178 5.503 5.503 0 0 0-4.8-4.8.75.75 0 0 1 .179-1.489ZM2 13a1 1 0 1 1 2 0 1 1 0 0 1-2 0Z', 'upload': 'M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z M11.78 4.72a.749.749 0 1 1-1.06 1.06L8.75 3.811V9.5a.75.75 0 0 1-1.5 0V3.811L5.28 5.78a.749.749 0 1 1-1.06-1.06l3.25-3.25a.749.749 0 0 1 1.06 0l3.25 3.25Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z'};
+var utterancesLoad=0;
+if(localStorage.getItem("meek_theme")==null){localStorage.setItem("meek_theme","light");changeLight();}
+else if(localStorage.getItem("meek_theme")=="dark"){changeDark();}
+else if(localStorage.getItem("meek_theme")=="light"){changeLight();}
+
+function changeDark(){
+    document.getElementsByTagName("html")[0].attributes.getNamedItem("data-color-mode").value="dark";
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList["moon"]);
+    document.getElementById("themeSwitch").parentNode.style.color="#00f0ff";
+    if(utterancesLoad==1){utterancesTheme("dark-blue");}
+}
+function changeLight(){
+    document.getElementsByTagName("html")[0].attributes.getNamedItem("data-color-mode").value="light";
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList["sun"]);
+    document.getElementById("themeSwitch").parentNode.style.color="#ff5000";
+    if(utterancesLoad==1){utterancesTheme("github-light");}
+}
+function modeSwitch(){
+    if(document.getElementsByTagName("html")[0].attributes[0].value=="light"){changeDark();localStorage.setItem("meek_theme","dark");}
+    else{changeLight();localStorage.setItem("meek_theme","light");}
+}
+function utterancesTheme(theme){
+    const message = {type: 'set-theme',theme: theme};
+    const iframe = document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message, 'https://utteranc.es');
+}
+
+console.log("\n %c Gmeek main %c https://github.com/Meekdai/Gmeek \n\n", "color: #fff; background-image: linear-gradient(90deg, rgb(47, 172, 178) 0%, rgb(45, 190, 96) 100%); padding:5px 1px;", "background-image: linear-gradient(90deg, rgb(45, 190, 96) 0%, rgb(255, 255, 255) 100%); padding:5px 0;");
+</script>
+
+<script>
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","fluent12138/fluent12138.github.io");
+    script.setAttribute("issue-term","title");
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else{script.setAttribute("theme","github-light");}
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+</script>
+
+
+
+
+</html>
