@@ -1,179 +1,101 @@
-# 事件处理器
+# [Erlang并发应用设计之提醒器](https://git.acwing.com/fluentx/erlang-reminder/-/tree/main/) 
 
-## 图解
-![event-事件处理器.excalidraw.png](https://cdn.acwing.com/media/article/image/2023/04/05/36510_f828b03cd3-event-事件处理器.excalidraw.png) 
 
-## version 2.0
-```
--module(curling).
--author("勒勒").
-%% API
--export([start_link/2, add_points/3, next_round/1, join_feed/2, leave_feed/2, game_info/1]).
 
-start_link(TeamA, TeamB) ->
-  {ok, Pid} = gen_event:start_link(),
-  %% 记分板
-  gen_event:add_handler(Pid, curling_scoreboard, []),
-  %% 启动比赛状态累加器
-  gen_event:add_handler(Pid, curling_accumulator, []),
-  set_teams(Pid, TeamA, TeamB),
-  {ok, Pid}.
+> 主要文件为: evserv.erl(事件服务器)、event.erl(事件进程)、test.erl(测试，模拟客户端)、sup.erl(重启器)
 
-set_teams(Pid, TeamA, TeamB) ->
-  gen_event:notify(Pid, {set_teams, TeamA, TeamB}).
+## 理解问题
+为了编写这个小应用， 需要做的事情
 
-add_points(Pid, Team, N) ->
-  gen_event:notify(Pid, {add_points, Team, N}).
+- 添加一个事件， 包括事件名，事件描述信息，最后期限
+- 当事件到达约定期限， 发出警告
+- 根据事件名字取消事件
+- 通过命令行或系统进行交互
 
-next_round(Pid) -> gen_event:notify(Pid, next_round).
 
-%% 为进程ToPid订阅比赛消息
-join_feed(Pid, ToPid) ->
-  HandlerId = {curling_feed, make_ref()},
-  gen_event:add_handler(Pid, HandlerId, [ToPid]),
-  HandlerId.
 
-leave_feed(Pid, HandlerId) ->
-  gen_event:delete_handler(Pid, HandlerId, leave_feed).
+> 此应用没有做信息持久化， 通过Erlang数据结构在运行时存储信息
 
-%% 返回当前比赛状态, 为迟到订阅的提供
-game_info(Pid) ->
-  gen_event:call(Pid, curling_accumulator, game_data).
-```
+ 
+  **程序结构如下** 
+![reminder-client-server.png](https://cdn.acwing.com/media/article/image/2023/03/26/36510_7e46851ecb-reminder-client-server.png) 
 
-## callback
-- 通用callback
-```
--module(gen_event_callback).
--author("勒勒").
--behavior(gen_event).
-%% API
--export([init/1, handle_event/2, handle_call/2, handle_info/2, code_change/3, terminate/2]).
+### server(以下统称事件服务器)需要做的任务
+- 接收客户端的订阅
+- 把来自事件服务器的消息转发给每个订阅者
+- 接收增加事件的消息(需要时会启动x, y, z进程)
+- 接收取消事件消息, 随后杀死事件进程
 
-init([]) -> [].
+### 客户进程任务
+- 向事件服务器发起订阅, 并接受通知信息
+- 请求服务器增加一个具体的事件
+- 请求服务器取消一个事件
+- 监控服务器
+- 在需要时, 关闭事件服务器
 
-handle_event(_, State) -> {ok, State}.
+### 进程x,y,z需要做的任务
+- 当计时器到时, 给事件服务器进程发送一条信息
+- 接收事件取消消息, 然后死亡
 
-handle_call(_, State) -> {ok, ok, State}.
+![骨架.png](https://cdn.acwing.com/media/article/image/2023/03/26/36510_89eed0aacb-骨架.png)
 
-handle_info(_, State) -> {ok, State}.
 
-code_change(_OldVsn, State, _Extra) -> {ok, State}.
+> 在真实的应用中，把每个待提醒的事件都表示为一个进程的做法可能有些过度了，并且难以
+扩展到大量事件的场合。不过，因为这个应用只有我一个用户，所以这种设计没有问题。
 
-terminate(_Reason, _State) -> ok.
-```
+## 设计协议
 
-- curling_scoreboard
-```
--module(curling_scoreboard).
--author("勒勒").
--import(curling_scoreboard_hw, [set_teams/2, add_point/1, reset_board/1, next_round/0]).
-%% API
--export([init/1, handle_event/2, handle_call/2, handle_info/2]).
+### 客户端 <-> 服务器
+  **订阅**
+  
+  - 客户端 -> 服务器
+  - 客户端请求: {subscribe, self()}
+  - 服务端响应: ok
+  
+  **添加** 
 
-init([]) -> {ok, []}.
+- 客户端 -> 服务器
+- 客户端请求: {add, Name, Description, TimeOut}
+- 服务端响应: ok|{error, reason}, 在TimeOut格式不正确会提示错误
+ 
+  **取消** 
 
-handle_event({set_teams, TeamA, TeamB}, State) ->
-  io:format("set teams"),
-  curling_scoreboard_hw:set_teams(TeamA, TeamB),
-  {ok, State};
+- 客户端 -> 服务器
+- 客户端请求: {cancel, Name}
+- 服务端响应: ok
+  **事件完成** 
+    
+- 服务端 -> 客户端
+- 服务器响应 : {done, Name, Description}
 
-handle_event({add_points, Team, N}, State) ->
-  [curling_scoreboard_hw:add_point(Team) || _ <- lists:seq(1, N)],
-  {ok, State};
+  **关闭** 
+  
+- 客户端 -> 服务器
+- 客户端请求: shutdown
+- 服务端响应: {'DOWN', Ref, process, Pid, shutdown}
 
-handle_event(next_round, State) ->
-  curling_scoreboard_hw:next_round(),
-  {ok, State};
+### 事件服务器 <-> 事件
 
-handle_event(_, State) -> {ok, State}.
+ **事件完成**
+ 
+- 事件进程 -> 事件服务器进程
+- 事件进程 : {done, Id}
 
-handle_call(_, State) -> {ok, ok, State}.
+ **取消事件** 
+ 
+- 事件服务器进程 -> 事件进程
+- 事件服务器进程 : {cancel}
+- 事件进程: ok
 
-handle_info(_, State) -> {ok, State}.
+### 升级服务器
 
-```
-- curling_feed
-```
--module(curling_feed).
--author("勒勒").
--behavior(gen_event).
-%% API
--export([init/1, handle_event/2, handle_call/2, handle_info/2, code_change/3, terminate/2]).
+- erlang shell -> 事件服务器
+- erlang shel : {code_change}
 
-init([Pid]) -> {ok, Pid}.
+## 具体实现
 
-handle_event(Event, Pid) ->
-  Pid ! {curling_feed, Event},
-  {ok, Pid}.
-
-handle_call(_, State) -> {ok, ok, State}.
-
-handle_info(_, State) -> {ok, State}.
-
-code_change(_OldVsn, State, _Extra) -> {ok, State}.
-
-terminate(_Reason, _State) -> ok.
-
-```
-- curling_accumulator
-
-```
--module(curling_accumulator).
--author("勒勒").
--behavior(gen_event).
-%% API
--export([init/1, handle_event/2, handle_call/2, handle_info/2, code_change/3, terminate/2]).
--record(state, {teams = orddict:new(), round = 0}).
-
-init([]) -> {ok, #state{}}.
-
-handle_event({set_teams, TeamA, TeamB}, S = #state{teams = T}) ->
-  Teams = orddict:store(TeamA, 0, orddict:store(TeamB, 0, T)),
-  {ok, S#state{teams =  Teams}};
-
-handle_event({add_points, Team, N}, S = #state{teams = T}) ->
-  Teams = orddict:update_counter(Team, N, T), %% 如果存在则 Val += incr, 不存在添加一个Key Val(为空直接添加, 否则依次寻找)
-  {ok, S#state{teams = Teams}};
-
-handle_event(next_round, S = #state{}) ->
-  {ok, S#state{round = S#state.round + 1}};
-
-handle_event(_Event, State = #state{}) -> {ok, State}.
-
-handle_call(game_data, S = #state{teams = T, round = R}) ->
-  {ok, {orddict:to_list(T), {round, R}}, S};
-
-handle_call(_, State) -> {ok, ok, State}.
-
-handle_info(_, State) -> {ok, State}.
-
-code_change(_OldVsn, State, _Extra) -> {ok, State}.
-
-terminate(_Reason, _State) -> ok.
-```
-
-## mock curling_scoreboard_hw
-```
--module(curling_scoreboard_hw).
--author("勒勒").
-
-%% API
--export([set_teams/2, next_round/0, add_point/1, reset_board/0]).
-
-%% 在计分板上显示参赛队伍
-set_teams(TeamA, TeamB) ->
-  io:format("Scoreboard: Team ~s vs Team ~s ~n", [TeamA, TeamB]).
-
-next_round() ->
-  io:format("Scoreboard: round over ~n").
-
-add_point(Team) ->
-  io:format("Scoreboard:increased score of team ~s by 1~n", [Team]).
-
-reset_board() ->
-  io:format("Scoreboard: All teams are undefined and al1 scores are 0~n").
-
-```
+ **由于初学erlang, 项目文件可能有点混乱 hh** 
+ 
+  [erlang-reminder](https://git.acwing.com/fluentx/erlang-reminder/-/tree/main/)
 
 <!-- ##{"timestamp":1679839200}## -->

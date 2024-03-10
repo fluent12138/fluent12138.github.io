@@ -70,179 +70,115 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
 </div>
     <div id="content">
-<div class="markdown-body" id="postBody"><h1>事件处理器</h1>
-<h2>图解</h2>
-<p><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/6813c948c11aac7cb926fd0d2a0e9f591bbc88bf766490de3154dc0b024b8a41/68747470733a2f2f63646e2e616377696e672e636f6d2f6d656469612f61727469636c652f696d6167652f323032332f30342f30352f33363531305f663832386230336364332d6576656e742d2545342542412538422545342542422542362545352541342538342545372539302538362545352539392541382e657863616c69647261772e706e67"><img src="https://camo.githubusercontent.com/6813c948c11aac7cb926fd0d2a0e9f591bbc88bf766490de3154dc0b024b8a41/68747470733a2f2f63646e2e616377696e672e636f6d2f6d656469612f61727469636c652f696d6167652f323032332f30342f30352f33363531305f663832386230336364332d6576656e742d2545342542412538422545342542422542362545352541342538342545372539302538362545352539392541382e657863616c69647261772e706e67" alt="event-事件处理器.excalidraw.png" data-canonical-src="https://cdn.acwing.com/media/article/image/2023/04/05/36510_f828b03cd3-event-%E4%BA%8B%E4%BB%B6%E5%A4%84%E7%90%86%E5%99%A8.excalidraw.png" style="max-width: 100%;"></a></p>
-<h2>version 2.0</h2>
-<pre class="notranslate"><code class="notranslate">-module(curling).
--author("勒勒").
-%% API
--export([start_link/2, add_points/3, next_round/1, join_feed/2, leave_feed/2, game_info/1]).
-
-start_link(TeamA, TeamB) -&gt;
-  {ok, Pid} = gen_event:start_link(),
-  %% 记分板
-  gen_event:add_handler(Pid, curling_scoreboard, []),
-  %% 启动比赛状态累加器
-  gen_event:add_handler(Pid, curling_accumulator, []),
-  set_teams(Pid, TeamA, TeamB),
-  {ok, Pid}.
-
-set_teams(Pid, TeamA, TeamB) -&gt;
-  gen_event:notify(Pid, {set_teams, TeamA, TeamB}).
-
-add_points(Pid, Team, N) -&gt;
-  gen_event:notify(Pid, {add_points, Team, N}).
-
-next_round(Pid) -&gt; gen_event:notify(Pid, next_round).
-
-%% 为进程ToPid订阅比赛消息
-join_feed(Pid, ToPid) -&gt;
-  HandlerId = {curling_feed, make_ref()},
-  gen_event:add_handler(Pid, HandlerId, [ToPid]),
-  HandlerId.
-
-leave_feed(Pid, HandlerId) -&gt;
-  gen_event:delete_handler(Pid, HandlerId, leave_feed).
-
-%% 返回当前比赛状态, 为迟到订阅的提供
-game_info(Pid) -&gt;
-  gen_event:call(Pid, curling_accumulator, game_data).
-</code></pre>
-<h2>callback</h2>
+<div class="markdown-body" id="postBody"><h1><a href="https://git.acwing.com/fluentx/erlang-reminder/-/tree/main/" rel="nofollow">Erlang并发应用设计之提醒器</a></h1>
+<blockquote>
+<p>主要文件为: evserv.erl(事件服务器)、event.erl(事件进程)、test.erl(测试，模拟客户端)、sup.erl(重启器)</p>
+</blockquote>
+<h2>理解问题</h2>
+<p>为了编写这个小应用， 需要做的事情</p>
 <ul>
-<li>通用callback</li>
+<li>添加一个事件， 包括事件名，事件描述信息，最后期限</li>
+<li>当事件到达约定期限， 发出警告</li>
+<li>根据事件名字取消事件</li>
+<li>通过命令行或系统进行交互</li>
 </ul>
-<pre class="notranslate"><code class="notranslate">-module(gen_event_callback).
--author("勒勒").
--behavior(gen_event).
-%% API
--export([init/1, handle_event/2, handle_call/2, handle_info/2, code_change/3, terminate/2]).
-
-init([]) -&gt; [].
-
-handle_event(_, State) -&gt; {ok, State}.
-
-handle_call(_, State) -&gt; {ok, ok, State}.
-
-handle_info(_, State) -&gt; {ok, State}.
-
-code_change(_OldVsn, State, _Extra) -&gt; {ok, State}.
-
-terminate(_Reason, _State) -&gt; ok.
-</code></pre>
+<blockquote>
+<p>此应用没有做信息持久化， 通过Erlang数据结构在运行时存储信息</p>
+</blockquote>
+<p><strong>程序结构如下</strong><br>
+<a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/4f501951b01d29af188d67e1d9f08a1b521da5d53dafd4c1c0d5e1160a98d111/68747470733a2f2f63646e2e616377696e672e636f6d2f6d656469612f61727469636c652f696d6167652f323032332f30332f32362f33363531305f376534363835316563622d72656d696e6465722d636c69656e742d7365727665722e706e67"><img src="https://camo.githubusercontent.com/4f501951b01d29af188d67e1d9f08a1b521da5d53dafd4c1c0d5e1160a98d111/68747470733a2f2f63646e2e616377696e672e636f6d2f6d656469612f61727469636c652f696d6167652f323032332f30332f32362f33363531305f376534363835316563622d72656d696e6465722d636c69656e742d7365727665722e706e67" alt="reminder-client-server.png" data-canonical-src="https://cdn.acwing.com/media/article/image/2023/03/26/36510_7e46851ecb-reminder-client-server.png" style="max-width: 100%;"></a></p>
+<h3>server(以下统称事件服务器)需要做的任务</h3>
 <ul>
-<li>curling_scoreboard</li>
+<li>接收客户端的订阅</li>
+<li>把来自事件服务器的消息转发给每个订阅者</li>
+<li>接收增加事件的消息(需要时会启动x, y, z进程)</li>
+<li>接收取消事件消息, 随后杀死事件进程</li>
 </ul>
-<pre class="notranslate"><code class="notranslate">-module(curling_scoreboard).
--author("勒勒").
--import(curling_scoreboard_hw, [set_teams/2, add_point/1, reset_board/1, next_round/0]).
-%% API
--export([init/1, handle_event/2, handle_call/2, handle_info/2]).
-
-init([]) -&gt; {ok, []}.
-
-handle_event({set_teams, TeamA, TeamB}, State) -&gt;
-  io:format("set teams"),
-  curling_scoreboard_hw:set_teams(TeamA, TeamB),
-  {ok, State};
-
-handle_event({add_points, Team, N}, State) -&gt;
-  [curling_scoreboard_hw:add_point(Team) || _ &lt;- lists:seq(1, N)],
-  {ok, State};
-
-handle_event(next_round, State) -&gt;
-  curling_scoreboard_hw:next_round(),
-  {ok, State};
-
-handle_event(_, State) -&gt; {ok, State}.
-
-handle_call(_, State) -&gt; {ok, ok, State}.
-
-handle_info(_, State) -&gt; {ok, State}.
-
-</code></pre>
+<h3>客户进程任务</h3>
 <ul>
-<li>curling_feed</li>
+<li>向事件服务器发起订阅, 并接受通知信息</li>
+<li>请求服务器增加一个具体的事件</li>
+<li>请求服务器取消一个事件</li>
+<li>监控服务器</li>
+<li>在需要时, 关闭事件服务器</li>
 </ul>
-<pre class="notranslate"><code class="notranslate">-module(curling_feed).
--author("勒勒").
--behavior(gen_event).
-%% API
--export([init/1, handle_event/2, handle_call/2, handle_info/2, code_change/3, terminate/2]).
-
-init([Pid]) -&gt; {ok, Pid}.
-
-handle_event(Event, Pid) -&gt;
-  Pid ! {curling_feed, Event},
-  {ok, Pid}.
-
-handle_call(_, State) -&gt; {ok, ok, State}.
-
-handle_info(_, State) -&gt; {ok, State}.
-
-code_change(_OldVsn, State, _Extra) -&gt; {ok, State}.
-
-terminate(_Reason, _State) -&gt; ok.
-
-</code></pre>
+<h3>进程x,y,z需要做的任务</h3>
 <ul>
-<li>curling_accumulator</li>
+<li>当计时器到时, 给事件服务器进程发送一条信息</li>
+<li>接收事件取消消息, 然后死亡</li>
 </ul>
-<pre class="notranslate"><code class="notranslate">-module(curling_accumulator).
--author("勒勒").
--behavior(gen_event).
-%% API
--export([init/1, handle_event/2, handle_call/2, handle_info/2, code_change/3, terminate/2]).
--record(state, {teams = orddict:new(), round = 0}).
-
-init([]) -&gt; {ok, #state{}}.
-
-handle_event({set_teams, TeamA, TeamB}, S = #state{teams = T}) -&gt;
-  Teams = orddict:store(TeamA, 0, orddict:store(TeamB, 0, T)),
-  {ok, S#state{teams =  Teams}};
-
-handle_event({add_points, Team, N}, S = #state{teams = T}) -&gt;
-  Teams = orddict:update_counter(Team, N, T), %% 如果存在则 Val += incr, 不存在添加一个Key Val(为空直接添加, 否则依次寻找)
-  {ok, S#state{teams = Teams}};
-
-handle_event(next_round, S = #state{}) -&gt;
-  {ok, S#state{round = S#state.round + 1}};
-
-handle_event(_Event, State = #state{}) -&gt; {ok, State}.
-
-handle_call(game_data, S = #state{teams = T, round = R}) -&gt;
-  {ok, {orddict:to_list(T), {round, R}}, S};
-
-handle_call(_, State) -&gt; {ok, ok, State}.
-
-handle_info(_, State) -&gt; {ok, State}.
-
-code_change(_OldVsn, State, _Extra) -&gt; {ok, State}.
-
-terminate(_Reason, _State) -&gt; ok.
-</code></pre>
-<h2>mock curling_scoreboard_hw</h2>
-<pre class="notranslate"><code class="notranslate">-module(curling_scoreboard_hw).
--author("勒勒").
-
-%% API
--export([set_teams/2, next_round/0, add_point/1, reset_board/0]).
-
-%% 在计分板上显示参赛队伍
-set_teams(TeamA, TeamB) -&gt;
-  io:format("Scoreboard: Team ~s vs Team ~s ~n", [TeamA, TeamB]).
-
-next_round() -&gt;
-  io:format("Scoreboard: round over ~n").
-
-add_point(Team) -&gt;
-  io:format("Scoreboard:increased score of team ~s by 1~n", [Team]).
-
-reset_board() -&gt;
-  io:format("Scoreboard: All teams are undefined and al1 scores are 0~n").
-
-</code></pre>
+<p><a target="_blank" rel="noopener noreferrer nofollow" href="https://camo.githubusercontent.com/9dd6b1ad373413cef296fdc9342ceb58dd189dba386892c371a601c79e62f77d/68747470733a2f2f63646e2e616377696e672e636f6d2f6d656469612f61727469636c652f696d6167652f323032332f30332f32362f33363531305f383965656430616163622d2545392541412541382545362539452542362e706e67"><img src="https://camo.githubusercontent.com/9dd6b1ad373413cef296fdc9342ceb58dd189dba386892c371a601c79e62f77d/68747470733a2f2f63646e2e616377696e672e636f6d2f6d656469612f61727469636c652f696d6167652f323032332f30332f32362f33363531305f383965656430616163622d2545392541412541382545362539452542362e706e67" alt="骨架.png" data-canonical-src="https://cdn.acwing.com/media/article/image/2023/03/26/36510_89eed0aacb-%E9%AA%A8%E6%9E%B6.png" style="max-width: 100%;"></a></p>
+<blockquote>
+<p>在真实的应用中，把每个待提醒的事件都表示为一个进程的做法可能有些过度了，并且难以<br>
+扩展到大量事件的场合。不过，因为这个应用只有我一个用户，所以这种设计没有问题。</p>
+</blockquote>
+<h2>设计协议</h2>
+<h3>客户端 &lt;-&gt; 服务器</h3>
+<p><strong>订阅</strong></p>
+<ul>
+<li>客户端 -&gt; 服务器</li>
+<li>客户端请求: {subscribe, self()}</li>
+<li>服务端响应: ok</li>
+</ul>
+<p><strong>添加</strong></p>
+<ul>
+<li>
+<p>客户端 -&gt; 服务器</p>
+</li>
+<li>
+<p>客户端请求: {add, Name, Description, TimeOut}</p>
+</li>
+<li>
+<p>服务端响应: ok|{error, reason}, 在TimeOut格式不正确会提示错误</p>
+<p><strong>取消</strong></p>
+</li>
+<li>
+<p>客户端 -&gt; 服务器</p>
+</li>
+<li>
+<p>客户端请求: {cancel, Name}</p>
+</li>
+<li>
+<p>服务端响应: ok<br>
+<strong>事件完成</strong></p>
+</li>
+<li>
+<p>服务端 -&gt; 客户端</p>
+</li>
+<li>
+<p>服务器响应 : {done, Name, Description}</p>
+<p><strong>关闭</strong></p>
+</li>
+<li>
+<p>客户端 -&gt; 服务器</p>
+</li>
+<li>
+<p>客户端请求: shutdown</p>
+</li>
+<li>
+<p>服务端响应: {'DOWN', Ref, process, Pid, shutdown}</p>
+</li>
+</ul>
+<h3>事件服务器 &lt;-&gt; 事件</h3>
+<p><strong>事件完成</strong></p>
+<ul>
+<li>事件进程 -&gt; 事件服务器进程</li>
+<li>事件进程 : {done, Id}</li>
+</ul>
+<p><strong>取消事件</strong></p>
+<ul>
+<li>事件服务器进程 -&gt; 事件进程</li>
+<li>事件服务器进程 : {cancel}</li>
+<li>事件进程: ok</li>
+</ul>
+<h3>升级服务器</h3>
+<ul>
+<li>erlang shell -&gt; 事件服务器</li>
+<li>erlang shel : {code_change}</li>
+</ul>
+<h2>具体实现</h2>
+<p><strong>由于初学erlang, 项目文件可能有点混乱 hh</strong></p>
+<p><a href="https://git.acwing.com/fluentx/erlang-reminder/-/tree/main/" rel="nofollow">erlang-reminder</a></p>
 </div>
 <div style="font-size:small;margin-top:8px;float:right;">❤️ 转载文章请注明出处，谢谢！❤️</div>
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
