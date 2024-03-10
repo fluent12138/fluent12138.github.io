@@ -1,10 +1,10 @@
 {
     "title":"fluent's blog",
-    "displayTitle":"fluent's blog",
+    "displayTitle":"luent's blog",
     "subTitle":"用树木去接近星辰是大地的梦想。",
     "homeUrl":"https://fluent12138.github.io/",
-    "avatarUrl":"https://meekdai.com/avatar.svg",
-    "faviconUrl":"https://meekdai.com/favicon.svg",
+    "avatarUrl":"https://cdn.acwing.com/media/article/image/2024/03/10/36510_37ce6a9ade-f.png",
+    "faviconUrl":"https://cdn.acwing.com/media/article/image/2024/03/10/36510_37ce6a9ade-f.png",
     "singlePage":["link","about"],
     "email":"fluent12138@163.com",
     "nightTheme":"dark_colorblind",
