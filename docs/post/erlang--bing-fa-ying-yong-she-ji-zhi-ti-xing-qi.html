@@ -9,7 +9,98 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="erlang-并发应用设计之提醒器">
+<meta name="description" content="# [Erlang并发应用设计之提醒器](https://git.acwing.com/fluentx/erlang-reminder/-/tree/main/) 
+
+
+
+> 主要文件为: evserv.erl(事件服务器)、event.erl(事件进程)、test.erl(测试，模拟客户端)、sup.erl(重启器)
+
+## 理解问题
+为了编写这个小应用， 需要做的事情
+
+- 添加一个事件， 包括事件名，事件描述信息，最后期限
+- 当事件到达约定期限， 发出警告
+- 根据事件名字取消事件
+- 通过命令行或系统进行交互
+
+
+
+> 此应用没有做信息持久化， 通过Erlang数据结构在运行时存储信息
+
+ 
+  **程序结构如下** 
+![reminder-client-server.png](https://cdn.acwing.com/media/article/image/2023/03/26/36510_7e46851ecb-reminder-client-server.png) 
+
+### server(以下统称事件服务器)需要做的任务
+- 接收客户端的订阅
+- 把来自事件服务器的消息转发给每个订阅者
+- 接收增加事件的消息(需要时会启动x, y, z进程)
+- 接收取消事件消息, 随后杀死事件进程
+
+### 客户进程任务
+- 向事件服务器发起订阅, 并接受通知信息
+- 请求服务器增加一个具体的事件
+- 请求服务器取消一个事件
+- 监控服务器
+- 在需要时, 关闭事件服务器
+
+### 进程x,y,z需要做的任务
+- 当计时器到时, 给事件服务器进程发送一条信息
+- 接收事件取消消息, 然后死亡
+
+![骨架.png](https://cdn.acwing.com/media/article/image/2023/03/26/36510_89eed0aacb-骨架.png)
+
+
+> 在真实的应用中，把每个待提醒的事件都表示为一个进程的做法可能有些过度了，并且难以
+扩展到大量事件的场合。">
+<meta property="og:title" content="erlang-并发应用设计之提醒器">
+<meta property="og:description" content="# [Erlang并发应用设计之提醒器](https://git.acwing.com/fluentx/erlang-reminder/-/tree/main/) 
+
+
+
+> 主要文件为: evserv.erl(事件服务器)、event.erl(事件进程)、test.erl(测试，模拟客户端)、sup.erl(重启器)
+
+## 理解问题
+为了编写这个小应用， 需要做的事情
+
+- 添加一个事件， 包括事件名，事件描述信息，最后期限
+- 当事件到达约定期限， 发出警告
+- 根据事件名字取消事件
+- 通过命令行或系统进行交互
+
+
+
+> 此应用没有做信息持久化， 通过Erlang数据结构在运行时存储信息
+
+ 
+  **程序结构如下** 
+![reminder-client-server.png](https://cdn.acwing.com/media/article/image/2023/03/26/36510_7e46851ecb-reminder-client-server.png) 
+
+### server(以下统称事件服务器)需要做的任务
+- 接收客户端的订阅
+- 把来自事件服务器的消息转发给每个订阅者
+- 接收增加事件的消息(需要时会启动x, y, z进程)
+- 接收取消事件消息, 随后杀死事件进程
+
+### 客户进程任务
+- 向事件服务器发起订阅, 并接受通知信息
+- 请求服务器增加一个具体的事件
+- 请求服务器取消一个事件
+- 监控服务器
+- 在需要时, 关闭事件服务器
+
+### 进程x,y,z需要做的任务
+- 当计时器到时, 给事件服务器进程发送一条信息
+- 接收事件取消消息, 然后死亡
+
+![骨架.png](https://cdn.acwing.com/media/article/image/2023/03/26/36510_89eed0aacb-骨架.png)
+
+
+> 在真实的应用中，把每个待提醒的事件都表示为一个进程的做法可能有些过度了，并且难以
+扩展到大量事件的场合。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://fluent12138.github.io//post/erlang--bing-fa-ying-yong-she-ji-zhi-ti-xing-qi.html">
+<meta property="og:image" content="https://cdn.acwing.com/media/article/image/2023/05/28/36510_044ec922fc-3.png">
 <title>erlang-并发应用设计之提醒器</title>
 
 
