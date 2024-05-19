@@ -1,5 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>一只博客</title><link>https://fluent12138.github.io/</link><description>用树木去接近星辰是大地的梦想。</description><copyright>一只博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://cdn.acwing.com/media/article/image/2023/05/28/36510_044ec922fc-3.png</url><title>avatar</title><link>https://fluent12138.github.io/</link></image><lastBuildDate>Sun, 10 Mar 2024 09:47:58 +0000</lastBuildDate><managingEditor>一只博客</managingEditor><ttl>60</ttl><webMaster>一只博客</webMaster><item><title>主题月</title><link>https://fluent12138.github.io//post/zhu-ti-yue.html</link><description>## 起因&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>一只博客</title><link>https://fluent12138.github.io/</link><description>用树木去接近星辰是大地的梦想。</description><copyright>一只博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://cdn.acwing.com/media/article/image/2023/05/28/36510_044ec922fc-3.png</url><title>avatar</title><link>https://fluent12138.github.io/</link></image><lastBuildDate>Sun, 19 May 2024 04:32:15 +0000</lastBuildDate><managingEditor>一只博客</managingEditor><ttl>60</ttl><webMaster>一只博客</webMaster><item><title>多语言环境搭建</title><link>https://fluent12138.github.io//post/duo-yu-yan-huan-jing-da-jian.html</link><description># 多语言环境搭建&#13;
+&#13;
+&gt; &#13;
+为了方便多语言环境搭建编写的脚本 : )&#13;
+&#13;
+[GitHub](https://github.com/fluent12138/mutil_lang_env)  &#13;
+&#13;
+&#13;
+### 目录结构&#13;
+&#13;
+```&#13;
+.&#13;
+|-- README.md&#13;
+|-- docker-compose.yaml&#13;
+|-- gen_yaml.py&#13;
+```&#13;
+&#13;
+### 使用说明&#13;
+&#13;
+1. 确保您的系统中已安装 Docker 和 Docker Compose。</description><guid isPermaLink="true">https://fluent12138.github.io//post/duo-yu-yan-huan-jing-da-jian.html</guid><pubDate>Sun, 19 May 2024 04:31:45 +0000</pubDate></item><item><title>主题月</title><link>https://fluent12138.github.io//post/zhu-ti-yue.html</link><description>## 起因&#13;
 &#13;
 &gt; 24年2月某天从B站上看到[这个视频](https://www.bilibili.com/video/BV1zz421X7KD/?spm_id_from=333.337.search-card.all.click)后觉得很有意思， 然后就列了一些主题开始做了起来。</description><guid isPermaLink="true">https://fluent12138.github.io//post/zhu-ti-yue.html</guid><pubDate>Sun, 10 Mar 2024 09:47:32 +0000</pubDate></item><item><title>7天用Go从零实现Web框架Gee</title><link>https://fluent12138.github.io//post/7-tian-yong-Go-cong-ling-shi-xian-Web-kuang-jia-Gee.html</link><description>## 准备阶段&#13;
 - 环境搭建, 搭了两份&#13;
