@@ -23,14 +23,14 @@
 
 ```erlang
 -module(ppool_supersup).  
--author("勒勒").  
+-author('勒勒').  
 -behavior(supervisor).  
 %% API  
 -export([start_link/0, stop/0, start_pool/3, stop_pool/1]).  
 -export([init/1]).  
    
 start_link() ->  
-  io:format("start supersup ...~n"),  
+  io:format('start supersup ...~n'),  
   supervisor:start_link({local, ppool}, ?MODULE, []). %{local, Name} 命名  
   
 stop() ->  
@@ -47,7 +47,7 @@ init([]) ->
   
 %% Limit : 工作者进程个数; MFA元组 : 工作者进程监督者启动工作者进程需要的{M, F, A}元组  
 start_pool(Name, Limit, MFA) ->  
-  io:format("start pool ... args: {~p, ~p, ~p}~n", [Name, Limit, MFA]),  
+  io:format('start pool ... args: {~p, ~p, ~p}~n', [Name, Limit, MFA]),  
   ChildSpec = {Name,  
                {ppool_sup, start_link, [Name, Limit, MFA]}, % {M, F, A}  
                permanent, 10500, supervisor, [ppool_sup]  
@@ -63,17 +63,17 @@ stop_pool(Name) ->
 ### code
 ```erlang
 -module(ppool_sup).  
--author("勒勒").  
+-author('勒勒').  
 -behavior(supervisor).  
 %% API  
 -export([start_link/3, init/1]).  
   
 start_link(Name, Limit, MFA) ->  
-  io:format("start ppool_sup...~n"),  
+  io:format('start ppool_sup...~n'),  
   supervisor:start_link(?MODULE, {Name, Limit, MFA}).  
   
 init({Name, Limit, MFA}) ->  
-  io:format("init ppool_sup...~n"),  
+  io:format('init ppool_sup...~n'),  
   MaxRestart = 1,  
   MaxTime = 3600,  
   {ok, {{one_for_all, MaxRestart, MaxTime},  
@@ -88,7 +88,7 @@ init({Name, Limit, MFA}) ->
 code
 ```erlang
 -module(ppool_worker_sup).  
--author("勒勒").  
+-author('勒勒').  
 -behavior(supervisor).  
 %% API  
 -export([start_link/1, init/1]).  
@@ -97,9 +97,9 @@ start_link(MFA = {_, _, _}) ->
   supervisor:start_link(?MODULE, MFA).  
   
 init({M, F, A}) ->  
-  io:format("worker sup init...~n"),  
+  io:format('worker sup init...~n'),  
   
-  io:format("MFA : ~p ~n", [{M, F, A}]),  
+  io:format('MFA : ~p ~n', [{M, F, A}]),  
   MaxRestart = 5,  
   MaxTime = 3600,  
   {ok, {{simple_one_for_one, MaxRestart, MaxTime},  
@@ -116,7 +116,7 @@ init({M, F, A}) ->
 ### code
 ```erlang
 -module(ppool_serv).  
--author("勒勒").  
+-author('勒勒').  
 -behavior(gen_server).  
 -define(SPEC(MFA), {worker_sup,  
                     {ppool_worker_sup, start_link, [MFA]},  
@@ -131,11 +131,11 @@ start(Name, Limit, Sup, MFA) when is_atom(Name), is_integer(Limit) ->
   gen_server:start({local, Name}, ?MODULE, {Limit, MFA, Sup}, []).  
   
 start_link(Name, Limit, Sup, MFA) when is_atom(Name), is_integer(Limit) ->  
-  io:format("start ppool_serv ~p ... ~n ", [Name]),  
+  io:format('start ppool_serv ~p ... ~n ', [Name]),  
   gen_server:start_link({local, Name}, ?MODULE, {Limit, MFA, Sup}, []).  
   
 run(Name, Args) ->  
-  io:format("test start run ~n"),  
+  io:format('test start run ~n'),  
   gen_server:call(Name, {run, Args}).  
   
 sync_queue(Name, Args) ->  
@@ -151,26 +151,26 @@ init({Limit, MFA, Sup}) ->
   %% 注释部分会造成死锁!  
   %% 在ppool_sup中需要启动serv, 等待init信息返回, 而init中使用start_child需要等待ppool_sup返回  
   %% {ok, Pid} = supervisor:start_child(Sup, ?SPEC(MFA)),  
-  io:format("init ppool_serv...~n"),  
+  io:format('init ppool_serv...~n'),  
   self() ! {start_worker_supervisor, Sup, MFA},  
   {ok, #state{limit = Limit, refs = gb_sets:empty()}}.  
   
 %% 获取任务结束信息  
 handle_info({'DOWN', Ref, process, _Pid,  _}, S = #state{refs = Refs}) ->  
-  io:format("received down msg, bool : ~p ~n", [gb_sets:is_element(Ref, Refs)]),  
+  io:format('received down msg, bool : ~p ~n', [gb_sets:is_element(Ref, Refs)]),  
   case gb_sets:is_element(Ref, Refs) of  
     true -> handle_down_worker(Ref, S);  
     false -> {noreply, S}  
   end;  
   
 handle_info({start_worker_supervisor, Sup, MFA}, S = #state{}) ->  
-  io:format("start worker...~n"),  
+  io:format('start worker...~n'),  
   {ok, Pid} = supervisor:start_child(Sup, ?SPEC(MFA)),  
-  io:format("start worker pid : ~p ~n", [Pid]),  
+  io:format('start worker pid : ~p ~n', [Pid]),  
   {noreply, S#state{sup = Pid}};  
   
 handle_info(Msg, State) ->  
-  io:format("UnKnown msg : ~p ~n", [Msg]),  
+  io:format('UnKnown msg : ~p ~n', [Msg]),  
   {noreply, State}.  
   
 %% 处理结束任务  
@@ -193,7 +193,7 @@ handle_down_worker(Ref, S = #state{limit = L, sup = Sup, refs = Refs}) ->
   
 %% run  
 handle_call({run, Args}, _From, S = #state{limit = N, sup = Sup, refs = R}) when N > 0 ->  
-  io:format("args : ~p, limit : ~p, sup : ~p, refs : ~p ~n", [Args, N, Sup, R]),  
+  io:format('args : ~p, limit : ~p, sup : ~p, refs : ~p ~n', [Args, N, Sup, R]),  
   {ok, Pid} = supervisor:start_child(Sup, Args),  
   Ref = erlang:monitor(process, Pid),  
   {reply, {ok, Pid}, S#state{limit = N - 1, refs = gb_sets:add(Ref, R)}};  
@@ -237,7 +237,7 @@ terminate(_Reason, _State) -> ok.
 ### code
 ```erlang
 -module(ppool_nagger).  
--author("勒勒").  
+-author('勒勒').  
 -behavior(gen_server).  
   
 %% API  
@@ -263,7 +263,7 @@ handle_cast(_Msg, State) -> {noreply, State}.
 %% 通过超时的方式发送消息  
 handle_info(timeout, {Task, Delay, Max, SendTo}) ->  
   SendTo ! {self(), Task},  
-  io:format("send task : ~p ~n", [Task]),  
+  io:format('send task : ~p ~n', [Task]),  
   if Max =:= infinity ->  
        {noreply, {Task, Delay, Max, SendTo}, Delay};  
      Max =< 1 ->  
@@ -294,20 +294,20 @@ application:start(ppool).
 ppool:start_pool(nagger, 2, {ppool_nagger, start_link, []}).
 
 %% 同步不入队
-ppool:run(nagger, ["finish the chapter!", 1000, 5, self()]).
-ppool:run(nagger, ["Watch a good movie!", 1000, 5, self()]).
-ppool:run(nagger, ["Playing game!", 1000, 5, self()]).
+ppool:run(nagger, ['finish the chapter!', 1000, 5, self()]).
+ppool:run(nagger, ['Watch a good movie!', 1000, 5, self()]).
+ppool:run(nagger, ['Playing game!', 1000, 5, self()]).
 flush().
 
 %% 同步入队
-ppool:sync_queue(nagger, ["finish the chapter!", 1000, 5, self()]).  
-ppool:sync_queue(nagger, ["Watch a good movie!", 1000, 5, self()]).
-ppool:sync_queue(nagger, ["Playing game!", 1000, 5, self()]).
+ppool:sync_queue(nagger, ['finish the chapter!', 1000, 5, self()]).  
+ppool:sync_queue(nagger, ['Watch a good movie!', 1000, 5, self()]).
+ppool:sync_queue(nagger, ['Playing game!', 1000, 5, self()]).
 
 %% 异步入队
-ppool:async_queue(nagger, ["finish the chapter!", 1000, 5, self()]).  
-ppool:async_queue(nagger, ["Watch a good movie!", 1000, 5, self()]).
-ppool:async_queue(nagger, ["Playing game!", 1000, 5, self()]).
+ppool:async_queue(nagger, ['finish the chapter!', 1000, 5, self()]).  
+ppool:async_queue(nagger, ['Watch a good movie!', 1000, 5, self()]).
+ppool:async_queue(nagger, ['Playing game!', 1000, 5, self()]).
 
 %% 查看当前运行的应用
 application:which_applications().
@@ -315,7 +315,7 @@ application:which_applications().
 application:stop(ppool).
 ```
 
-<!-- ##{"timestamp":1680962400}## -->。">
+<!-- ##{'timestamp':1680962400}## -->。">
 <meta property="og:title" content="erlang-OTP进程池">
 <meta property="og:description" content="# OTP应用 - 进程池
 ## 架构图 - 监督树
@@ -331,14 +331,14 @@ application:stop(ppool).
 
 ```erlang
 -module(ppool_supersup).  
--author("勒勒").  
+-author('勒勒').  
 -behavior(supervisor).  
 %% API  
 -export([start_link/0, stop/0, start_pool/3, stop_pool/1]).  
 -export([init/1]).  
    
 start_link() ->  
-  io:format("start supersup ...~n"),  
+  io:format('start supersup ...~n'),  
   supervisor:start_link({local, ppool}, ?MODULE, []). %{local, Name} 命名  
   
 stop() ->  
@@ -355,7 +355,7 @@ init([]) ->
   
 %% Limit : 工作者进程个数; MFA元组 : 工作者进程监督者启动工作者进程需要的{M, F, A}元组  
 start_pool(Name, Limit, MFA) ->  
-  io:format("start pool ... args: {~p, ~p, ~p}~n", [Name, Limit, MFA]),  
+  io:format('start pool ... args: {~p, ~p, ~p}~n', [Name, Limit, MFA]),  
   ChildSpec = {Name,  
                {ppool_sup, start_link, [Name, Limit, MFA]}, % {M, F, A}  
                permanent, 10500, supervisor, [ppool_sup]  
@@ -371,17 +371,17 @@ stop_pool(Name) ->
 ### code
 ```erlang
 -module(ppool_sup).  
--author("勒勒").  
+-author('勒勒').  
 -behavior(supervisor).  
 %% API  
 -export([start_link/3, init/1]).  
   
 start_link(Name, Limit, MFA) ->  
-  io:format("start ppool_sup...~n"),  
+  io:format('start ppool_sup...~n'),  
   supervisor:start_link(?MODULE, {Name, Limit, MFA}).  
   
 init({Name, Limit, MFA}) ->  
-  io:format("init ppool_sup...~n"),  
+  io:format('init ppool_sup...~n'),  
   MaxRestart = 1,  
   MaxTime = 3600,  
   {ok, {{one_for_all, MaxRestart, MaxTime},  
@@ -396,7 +396,7 @@ init({Name, Limit, MFA}) ->
 code
 ```erlang
 -module(ppool_worker_sup).  
--author("勒勒").  
+-author('勒勒').  
 -behavior(supervisor).  
 %% API  
 -export([start_link/1, init/1]).  
@@ -405,9 +405,9 @@ start_link(MFA = {_, _, _}) ->
   supervisor:start_link(?MODULE, MFA).  
   
 init({M, F, A}) ->  
-  io:format("worker sup init...~n"),  
+  io:format('worker sup init...~n'),  
   
-  io:format("MFA : ~p ~n", [{M, F, A}]),  
+  io:format('MFA : ~p ~n', [{M, F, A}]),  
   MaxRestart = 5,  
   MaxTime = 3600,  
   {ok, {{simple_one_for_one, MaxRestart, MaxTime},  
@@ -424,7 +424,7 @@ init({M, F, A}) ->
 ### code
 ```erlang
 -module(ppool_serv).  
--author("勒勒").  
+-author('勒勒').  
 -behavior(gen_server).  
 -define(SPEC(MFA), {worker_sup,  
                     {ppool_worker_sup, start_link, [MFA]},  
@@ -439,11 +439,11 @@ start(Name, Limit, Sup, MFA) when is_atom(Name), is_integer(Limit) ->
   gen_server:start({local, Name}, ?MODULE, {Limit, MFA, Sup}, []).  
   
 start_link(Name, Limit, Sup, MFA) when is_atom(Name), is_integer(Limit) ->  
-  io:format("start ppool_serv ~p ... ~n ", [Name]),  
+  io:format('start ppool_serv ~p ... ~n ', [Name]),  
   gen_server:start_link({local, Name}, ?MODULE, {Limit, MFA, Sup}, []).  
   
 run(Name, Args) ->  
-  io:format("test start run ~n"),  
+  io:format('test start run ~n'),  
   gen_server:call(Name, {run, Args}).  
   
 sync_queue(Name, Args) ->  
@@ -459,26 +459,26 @@ init({Limit, MFA, Sup}) ->
   %% 注释部分会造成死锁!  
   %% 在ppool_sup中需要启动serv, 等待init信息返回, 而init中使用start_child需要等待ppool_sup返回  
   %% {ok, Pid} = supervisor:start_child(Sup, ?SPEC(MFA)),  
-  io:format("init ppool_serv...~n"),  
+  io:format('init ppool_serv...~n'),  
   self() ! {start_worker_supervisor, Sup, MFA},  
   {ok, #state{limit = Limit, refs = gb_sets:empty()}}.  
   
 %% 获取任务结束信息  
 handle_info({'DOWN', Ref, process, _Pid,  _}, S = #state{refs = Refs}) ->  
-  io:format("received down msg, bool : ~p ~n", [gb_sets:is_element(Ref, Refs)]),  
+  io:format('received down msg, bool : ~p ~n', [gb_sets:is_element(Ref, Refs)]),  
   case gb_sets:is_element(Ref, Refs) of  
     true -> handle_down_worker(Ref, S);  
     false -> {noreply, S}  
   end;  
   
 handle_info({start_worker_supervisor, Sup, MFA}, S = #state{}) ->  
-  io:format("start worker...~n"),  
+  io:format('start worker...~n'),  
   {ok, Pid} = supervisor:start_child(Sup, ?SPEC(MFA)),  
-  io:format("start worker pid : ~p ~n", [Pid]),  
+  io:format('start worker pid : ~p ~n', [Pid]),  
   {noreply, S#state{sup = Pid}};  
   
 handle_info(Msg, State) ->  
-  io:format("UnKnown msg : ~p ~n", [Msg]),  
+  io:format('UnKnown msg : ~p ~n', [Msg]),  
   {noreply, State}.  
   
 %% 处理结束任务  
@@ -501,7 +501,7 @@ handle_down_worker(Ref, S = #state{limit = L, sup = Sup, refs = Refs}) ->
   
 %% run  
 handle_call({run, Args}, _From, S = #state{limit = N, sup = Sup, refs = R}) when N > 0 ->  
-  io:format("args : ~p, limit : ~p, sup : ~p, refs : ~p ~n", [Args, N, Sup, R]),  
+  io:format('args : ~p, limit : ~p, sup : ~p, refs : ~p ~n', [Args, N, Sup, R]),  
   {ok, Pid} = supervisor:start_child(Sup, Args),  
   Ref = erlang:monitor(process, Pid),  
   {reply, {ok, Pid}, S#state{limit = N - 1, refs = gb_sets:add(Ref, R)}};  
@@ -545,7 +545,7 @@ terminate(_Reason, _State) -> ok.
 ### code
 ```erlang
 -module(ppool_nagger).  
--author("勒勒").  
+-author('勒勒').  
 -behavior(gen_server).  
   
 %% API  
@@ -571,7 +571,7 @@ handle_cast(_Msg, State) -> {noreply, State}.
 %% 通过超时的方式发送消息  
 handle_info(timeout, {Task, Delay, Max, SendTo}) ->  
   SendTo ! {self(), Task},  
-  io:format("send task : ~p ~n", [Task]),  
+  io:format('send task : ~p ~n', [Task]),  
   if Max =:= infinity ->  
        {noreply, {Task, Delay, Max, SendTo}, Delay};  
      Max =< 1 ->  
@@ -602,20 +602,20 @@ application:start(ppool).
 ppool:start_pool(nagger, 2, {ppool_nagger, start_link, []}).
 
 %% 同步不入队
-ppool:run(nagger, ["finish the chapter!", 1000, 5, self()]).
-ppool:run(nagger, ["Watch a good movie!", 1000, 5, self()]).
-ppool:run(nagger, ["Playing game!", 1000, 5, self()]).
+ppool:run(nagger, ['finish the chapter!', 1000, 5, self()]).
+ppool:run(nagger, ['Watch a good movie!', 1000, 5, self()]).
+ppool:run(nagger, ['Playing game!', 1000, 5, self()]).
 flush().
 
 %% 同步入队
-ppool:sync_queue(nagger, ["finish the chapter!", 1000, 5, self()]).  
-ppool:sync_queue(nagger, ["Watch a good movie!", 1000, 5, self()]).
-ppool:sync_queue(nagger, ["Playing game!", 1000, 5, self()]).
+ppool:sync_queue(nagger, ['finish the chapter!', 1000, 5, self()]).  
+ppool:sync_queue(nagger, ['Watch a good movie!', 1000, 5, self()]).
+ppool:sync_queue(nagger, ['Playing game!', 1000, 5, self()]).
 
 %% 异步入队
-ppool:async_queue(nagger, ["finish the chapter!", 1000, 5, self()]).  
-ppool:async_queue(nagger, ["Watch a good movie!", 1000, 5, self()]).
-ppool:async_queue(nagger, ["Playing game!", 1000, 5, self()]).
+ppool:async_queue(nagger, ['finish the chapter!', 1000, 5, self()]).  
+ppool:async_queue(nagger, ['Watch a good movie!', 1000, 5, self()]).
+ppool:async_queue(nagger, ['Playing game!', 1000, 5, self()]).
 
 %% 查看当前运行的应用
 application:which_applications().
@@ -623,7 +623,7 @@ application:which_applications().
 application:stop(ppool).
 ```
 
-<!-- ##{"timestamp":1680962400}## -->。">
+<!-- ##{'timestamp':1680962400}## -->。">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://fluent12138.github.io//post/erlang-OTP-jin-cheng-chi.html">
 <meta property="og:image" content="https://cdn.acwing.com/media/article/image/2023/05/28/36510_044ec922fc-3.png">

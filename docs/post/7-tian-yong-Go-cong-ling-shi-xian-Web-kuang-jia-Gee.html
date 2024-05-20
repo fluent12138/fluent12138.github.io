@@ -41,7 +41,7 @@
     └── main.go
 
 // 只有一个路由对应的map
-// 比如定义了一个路由为 "/hello", 回调方法为helloFunc, 就会存在这个结构体中 {"/hello" : helloFunc}
+// 比如定义了一个路由为 '/hello', 回调方法为helloFunc, 就会存在这个结构体中 {'/hello' : helloFunc}
 // 当请求了这个路径, 通过路径找到对应方法, 然后执行
 
 type Engine struct {
@@ -178,7 +178,7 @@ type Context struct {
     └── main.go
 
 // 只有一个路由对应的map
-// 比如定义了一个路由为 "/hello", 回调方法为helloFunc, 就会存在这个结构体中 {"/hello" : helloFunc}
+// 比如定义了一个路由为 '/hello', 回调方法为helloFunc, 就会存在这个结构体中 {'/hello' : helloFunc}
 // 当请求了这个路径, 通过路径找到对应方法, 然后执行
 
 type Engine struct {
