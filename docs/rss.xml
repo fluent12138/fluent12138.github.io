@@ -1,5 +1,25 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>一只博客</title><link>https://fluent12138.github.io/</link><description>用树木去接近星辰是大地的梦想。</description><copyright>一只博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://cdn.acwing.com/media/article/image/2023/05/28/36510_044ec922fc-3.png</url><title>avatar</title><link>https://fluent12138.github.io/</link></image><lastBuildDate>Tue, 02 Jul 2024 13:18:37 +0000</lastBuildDate><managingEditor>一只博客</managingEditor><ttl>60</ttl><webMaster>一只博客</webMaster><item><title>多语言环境搭建工具分享</title><link>https://fluent12138.github.io//post/duo-yu-yan-huan-jing-da-jian-gong-ju-fen-xiang.html</link><description># 多语言环境搭建工具分享&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>一只博客</title><link>https://fluent12138.github.io/</link><description>用树木去接近星辰是大地的梦想。</description><copyright>一只博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://cdn.acwing.com/media/article/image/2023/05/28/36510_044ec922fc-3.png</url><title>avatar</title><link>https://fluent12138.github.io/</link></image><lastBuildDate>Sun, 07 Jul 2024 04:04:54 +0000</lastBuildDate><managingEditor>一只博客</managingEditor><ttl>60</ttl><webMaster>一只博客</webMaster><item><title>周记 7.1~7.7</title><link>https://fluent12138.github.io//post/zhou-ji-%207.1~7.7.html</link><description># 周记&#13;
+&#13;
+## 工作&#13;
+&#13;
+**一切顺利~**&#13;
+&#13;
+## 生活&#13;
+- 周六&#13;
+    - 早晨再次跟练[搏击课](https://www.bilibili.com/video/BV1MH4y1P7aa/?spm_id_from=333.1007.top_right_bar_window_custom_collection.content.click), 很爽, 希望大家都是健康的快乐的!&#13;
+    - 晚上看到acwing周赛又开了, 去打了一场, dp还是日常写不出来hh, 不过看日期周赛已经变成了月赛了&#13;
+- 周日&#13;
+    - 看了看昨晚tes比赛回放, 牛的! 希望能拿个冠军好吧!&#13;
+    - 看到了leetcode周赛开了, 顺便也去练了练手, 三题还行&#13;
+        - 找出加密后的字符串: 字符串替换, 对于坐标取个模就行, 签到题&#13;
+        - 生成不含相邻零的二进制字符串: 需要生成相邻两个数必须有一个1的 01串, dfs填数字, 如果前一位是0那么当前位必然是1, 前一位是1则当前位存在01两种情况, 继续往下搜索&#13;
+        -  统计 X 和 Y 频数相等的子矩阵数量: 用的二维前缀和, 给X,Y, .三个字符分别赋一个数字, 遍历求前缀和, 之后特殊判断X+Y的情况, 需要用longlong避免一些特殊情况&#13;
+- 周五&#13;
+    -  部门聚餐, 大生蚝好吃, 其他菜味道也还不错&#13;
+&#13;
+&#13;
+。</description><guid isPermaLink="true">https://fluent12138.github.io//post/zhou-ji-%207.1~7.7.html</guid><pubDate>Sun, 07 Jul 2024 04:04:28 +0000</pubDate></item><item><title>多语言环境搭建工具分享</title><link>https://fluent12138.github.io//post/duo-yu-yan-huan-jing-da-jian-gong-ju-fen-xiang.html</link><description># 多语言环境搭建工具分享&#13;
 &#13;
 ## 场景&#13;
 &gt; 从上大学开始, 电脑上就配置了各种各样的环境, 非常的混乱, 也不知道环境变量设置作用是什么, 很难受, 于是在某天晚上决定好好的配置一番我的电脑, 删除各种语言包, 什么java, erlang, python等等等, 然后开始通过下面这个工具重新安装&#13;
