@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>一只博客</title><link>https://fluent12138.github.io/</link><description>用树木去接近星辰是大地的梦想。</description><copyright>一只博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://cdn.acwing.com/media/article/image/2023/05/28/36510_044ec922fc-3.png</url><title>avatar</title><link>https://fluent12138.github.io/</link></image><lastBuildDate>Sun, 07 Jul 2024 04:08:43 +0000</lastBuildDate><managingEditor>一只博客</managingEditor><ttl>60</ttl><webMaster>一只博客</webMaster><item><title>周记 7.1~7.7</title><link>https://fluent12138.github.io//post/zhou-ji-%207.1~7.7.html</link><description>## 工作&#13;
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>一只博客</title><link>https://fluent12138.github.io/</link><description>用树木去接近星辰是大地的梦想。</description><copyright>一只博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://cdn.acwing.com/media/article/image/2023/05/28/36510_044ec922fc-3.png</url><title>avatar</title><link>https://fluent12138.github.io/</link></image><lastBuildDate>Sun, 07 Jul 2024 11:17:00 +0000</lastBuildDate><managingEditor>一只博客</managingEditor><ttl>60</ttl><webMaster>一只博客</webMaster><item><title>周记 7.1~7.7</title><link>https://fluent12138.github.io//post/zhou-ji-%207.1~7.7.html</link><description>## 工作&#13;
 &#13;
 **一切顺利~**&#13;
 &#13;
@@ -9,12 +9,15 @@
     - 晚上看到acwing周赛又开了, 去打了一场, dp还是日常写不出来hh, 不过看日期周赛已经变成了月赛了&#13;
 - 周日&#13;
     - 看了看昨晚tes比赛回放, 牛的! 希望能拿个冠军好吧!&#13;
-    - 看到了leetcode周赛开了, 顺便也去练了练手, 三题还行&#13;
+    - 10.40看到leetcode周赛开了, 顺便也去练了练手, 三题还行&#13;
         - 找出加密后的字符串: 字符串替换, 对于坐标取个模就行, 签到题&#13;
         - 生成不含相邻零的二进制字符串: 需要生成相邻两个数必须有一个1的 01串, dfs填数字, 如果前一位是0那么当前位必然是1, 前一位是1则当前位存在01两种情况, 继续往下搜索&#13;
         -  统计 X 和 Y 频数相等的子矩阵数量: 用的二维前缀和, 给X,Y, .三个字符分别赋一个数字, 遍历求前缀和, 之后特殊判断X+Y的情况, 需要用longlong避免一些特殊情况&#13;
+     - 下午看了场电影, 默杀, 看完之后感觉挺不错的 : ) ps. 回来后搜了搜b站解说, 看到一些不好的评论, 好看的观点又有点被影响了hh, 人果然是容易被他人的观点影响, 就像之前挺喜欢看的b站up主, 在有些地方看到别人对他不好的评价(什么小资生活巴拉巴拉), 再去看他的视频的时候也会有一些影响, 持续大概一周? 不知道这种现象有没有什么科学依据hh&#13;
 - 周五&#13;
     -  部门聚餐, 大生蚝好吃, 其他菜味道也还不错&#13;
+&#13;
+**突然发现顺序是周六 -&gt; 周日 -&gt; 周五, 不过也无伤大雅, 就像个人定闹钟也总是不是整点一样, 例如7:53 8:03这样**&#13;
 &#13;
 &#13;
 。</description><guid isPermaLink="true">https://fluent12138.github.io//post/zhou-ji-%207.1~7.7.html</guid><pubDate>Sun, 07 Jul 2024 04:04:28 +0000</pubDate></item><item><title>多语言环境搭建工具分享</title><link>https://fluent12138.github.io//post/duo-yu-yan-huan-jing-da-jian-gong-ju-fen-xiang.html</link><description># 多语言环境搭建工具分享&#13;
